@@ -1,0 +1,11 @@
+{
+  "accuracy": 0.9908006814310051,
+  "fpr": 0.4702702702702703,
+  "fnr": 0.7336956521739131,
+  "n_frames": 100,
+  "total_pred_lanes": 185,
+  "total_gt_lanes": 368,
+  "pixel_thresh": 20,
+  "pt_thresh": 0.85,
+  "method": "classical pipeline (single-frame)"
+}
