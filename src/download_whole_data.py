@@ -1,7 +1,7 @@
 """Download TuSimple test_set, extract only the 20-frame clips we want, delete zip.
 
 Downloads the full ~21.6 GB zip, but immediately:
-  1. Extracts only the annotation file + a curated 5 clips' worth of frames
+  1. Extracts only the annotation file + a curated N clips' worth of frames
   2. Deletes the zip file
 This keeps peak disk usage under ~25 GB.
 """
@@ -18,14 +18,9 @@ DATA_ROOT = Path("data/tusimple")
 EXTRACT_TO = DATA_ROOT / "test_subset"
 ZIP_PATH = DATA_ROOT / "tusimple.zip"
 
-# Clips that have all 20 frames (we already identified these earlier)
-TARGET_CLIPS = [
-    "1492626397007603377_0",
-    "1492626617873533069_0",
-    "1492626760788443246_0",
-    "1492627171538356342_0",
-    "1492627288467128445_0",
-]
+# Number of clips to extract (each clip has 20 frames)
+# 20 clips = 400 frames, ~80 MB on disk
+NUM_TARGET_CLIPS = 20
 
 
 def main() -> None:
@@ -39,7 +34,8 @@ def main() -> None:
          "--unzip", "--force"],
         check=True,
     )
-    print(f"  {DATA_ROOT / 'test_label.json'} present: {(DATA_ROOT / 'test_label.json').exists()}")
+    print(f"  {DATA_ROOT / 'test_label.json'} present: "
+          f"{(DATA_ROOT / 'test_label.json').exists()}")
 
     # Step 2: Download the full zip (~21.6 GB)
     print("\nStep 2: Downloading full TuSimple zip (~21.6 GB)...")
@@ -51,18 +47,39 @@ def main() -> None:
     )
     print(f"  Zip size: {ZIP_PATH.stat().st_size / 1e9:.1f} GB")
 
-    # Step 3: Extract ONLY the frames we need (5 clips × 20 frames = 100 files)
-    print(
-        f"\nStep 3: Extracting frames for {len(TARGET_CLIPS)} target clips...")
+    # Determine which clips to extract by reading the annotation file.
+    # We pick the first NUM_TARGET_CLIPS distinct clips from annotations.
+    print(f"\nDetermining {NUM_TARGET_CLIPS} target clips from annotations...")
+    annotations_preview = []
+    with open(DATA_ROOT / "test_label.json") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                annotations_preview.append(json.loads(line))
+            if len(annotations_preview) >= NUM_TARGET_CLIPS:
+                break
+
+    target_clips = []
+    for entry in annotations_preview:
+        # raw_file is "clips/0530/<clip_id>/20.jpg"
+        clip_id = entry["raw_file"].split("/")[-2]
+        target_clips.append(clip_id)
+    print(f"  First 3 target clips: {target_clips[:3]}")
+    print(f"  Total target clips: {len(target_clips)}")
+
+    # Step 3: Extract ONLY the frames we need
+    print(f"\nStep 3: Extracting frames for {len(target_clips)} target clips "
+          f"({len(target_clips) * 20} files)...")
     EXTRACT_TO.mkdir(parents=True, exist_ok=True)
 
     n_extracted = 0
+    target_clips_set = set(target_clips)  # faster lookup
     with zipfile.ZipFile(ZIP_PATH, "r") as zf:
         for member in zf.namelist():
             if not member.endswith(".jpg"):
                 continue
             # Check if this file belongs to one of our target clips
-            for clip_id in TARGET_CLIPS:
+            for clip_id in target_clips_set:
                 if f"/{clip_id}/" in member:
                     # Strip the "TUSimple/test_set/" prefix
                     relative = member.replace("TUSimple/test_set/", "")
@@ -73,8 +90,11 @@ def main() -> None:
                     n_extracted += 1
                     break
 
-    print(
-        f"  Extracted {n_extracted} files (expected {len(TARGET_CLIPS) * 20} = {len(TARGET_CLIPS)*20})")
+    expected = len(target_clips) * 20
+    print(f"  Extracted {n_extracted}/{expected} files")
+    if n_extracted < expected:
+        print(f"  WARNING: missing {expected - n_extracted} files. "
+              f"Check that all clips have 20 frames in the source dataset.")
 
     # Step 4: Delete the zip to free disk
     print("\nStep 4: Deleting zip to free disk space...")
@@ -92,7 +112,7 @@ def main() -> None:
     # Filter to target clips
     subset = []
     for entry in annotations:
-        for clip_id in TARGET_CLIPS:
+        for clip_id in target_clips_set:
             if f"/{clip_id}/" in entry["raw_file"]:
                 subset.append(entry)
                 break
