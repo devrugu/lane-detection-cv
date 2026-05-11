@@ -1,0 +1,26 @@
+{
+  "trained_at": "2026-05-10T15:45:06.681221",
+  "best_val_loss": 0.21062507073084513,
+  "best_epoch": 14,
+  "num_epochs": 30,
+  "batch_size": 16,
+  "learning_rate": 0.001,
+  "pos_weight": 8.0,
+  "img_size_height_width": [
+    288,
+    512
+  ],
+  "lane_thickness": 12,
+  "n_train": 2300,
+  "n_val": 300,
+  "n_test": 100,
+  "model_params": 7763041,
+  "tusimple_metrics_unet": {
+    "accuracy": 0.9952799828363013,
+    "fpr": 0.2094240837696335,
+    "fnr": 0.5896739130434783,
+    "n_frames": 100,
+    "total_pred_lanes": 191,
+    "total_gt_lanes": 368
+  }
+}
