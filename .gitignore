@@ -34,20 +34,9 @@ data/*.json
 !data/.gitkeep
 
 # Results — keep folder, ignore outputs
-results/*.png
-results/*.jpg
-results/*.mp4
-results/*.avi
-results/*.npy
-results/*.pkl
 !results/.gitkeep
 
 # Models
-*.pth
-*.pt
-*.h5
-*.onnx
-checkpoints/
 
 # Logs
 *.log
