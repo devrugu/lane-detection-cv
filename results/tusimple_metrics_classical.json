@@ -1,11 +1,12 @@
 {
-  "accuracy": 0.9908006814310051,
-  "fpr": 0.4702702702702703,
-  "fnr": 0.7336956521739131,
+  "method": "classical pipeline (single-frame)",
+  "accuracy_sota": 0.2513071055112711,
+  "accuracy_matched": 0.9898717083051992,
+  "fpr": 0.4810810810810811,
+  "fnr": 0.7391304347826086,
   "n_frames": 100,
   "total_pred_lanes": 185,
   "total_gt_lanes": 368,
   "pixel_thresh": 20,
-  "pt_thresh": 0.85,
-  "method": "classical pipeline (single-frame)"
+  "pt_thresh": 0.85
 }

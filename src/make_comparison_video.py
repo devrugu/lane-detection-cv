@@ -169,7 +169,7 @@ def main() -> None:
     # === Video writer ===
     total_w = COL_W * 3
     total_h = HEADER_H + COL_H
-    out_path = Path("results/comparison_video.mp4")
+    out_path = Path("results/comparison_video_noclip.mp4")
 
     # mp4v codec works in OpenCV without extra dependencies
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -186,12 +186,6 @@ def main() -> None:
 
     # === Per-clip rendering ===
     for clip_idx in range(n_clips):
-        # Transition card (skip before first clip)
-        if clip_idx > 0:
-            card = make_transition_card(clip_idx, n_clips, total_w, total_h)
-            for _ in range(TRANSITION_FRAMES):
-                writer.write(cv2.cvtColor(card, cv2.COLOR_RGB2BGR))
-                n_total_frames += 1
 
         # Load this clip's frames from disk (saves RAM)
         clip_dir = Path(clip_paths[clip_idx])
