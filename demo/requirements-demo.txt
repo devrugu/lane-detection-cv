@@ -1,0 +1,6 @@
+# Runtime dependencies for the demo app (kept separate from the research
+# requirements.txt so the bundled exe stays lean — no torch, jupyter, pandas).
+numpy==1.26.4
+opencv-python-headless==4.9.0.80
+matplotlib==3.8.2
+PySide6==6.7.2
